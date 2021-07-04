@@ -139,4 +139,4 @@ cython_debug/
 
 # not sure if I need these in my repo
 bin/
-lib64/
+lib64
