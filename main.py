@@ -2,6 +2,9 @@
 import tcod
 import sys
 
+from actions import EscapeAction, MovementAction
+from input_handlers import EventHandler
+
 sys.settrace
 
 def main() -> None:
@@ -14,6 +17,8 @@ def main() -> None:
     tileset = tcod.tileset.load_tilesheet(
         "dejavu10x10_gs_tc.png", 32, 8, tcod.tileset.CHARMAP_TCOD
     )
+
+    event_handler = EventHandler()
 
     with tcod.context.new_terminal(
         screen_width,
@@ -29,10 +34,22 @@ def main() -> None:
             
             context.present(root_console)
 
-            for event in tcod.event.wait():
-                if event.type == "QUIT":
-                    raise SystemExit()
+            # between each move we clear the console, and redraw it!
+            root_console.clear()
 
+            # don't do anything until we get some kind of event
+            for event in tcod.event.wait():
+                action = event_handler.dispatch(event)
+
+                if action is None:
+                    continue
+
+                if isinstance(action, MovementAction):
+                    player_x += action.dx
+                    player_y += action.dy
+
+                elif isinstance(action, EscapeAction):
+                    raise SystemExit()
 
 if __name__ == "__main__":
     main()
